@@ -22,10 +22,11 @@ mkdir -p "$FILES_DIR"
 # UncivServer's per-user "auth v1" (each player may set a password that
 # guards writes to their own save slot) is enabled by default.  Keep it
 # on: the game API is publicly reachable, so this is the one guardrail a
-# player has against someone else overwriting their game.  Operators can
-# force it off with UncivServerAuth=-no-auth if they want a fully open,
-# no-password server for a trusted group.
-export UncivServerAuth="${UncivServerAuth:--auth}"
+# player has against someone else overwriting their game.  The
+# UncivServerAuth env var is a BOOLEAN flag (true = auth enabled), not
+# the CLI string; operators can force it off with UncivServerAuth=false
+# for a fully open, no-password server for a trusted group.
+export UncivServerAuth="${UncivServerAuth:-true}"
 
 UPSTREAM_PORT="${AUTH_PROXY_UPSTREAM_PORT:-8081}"
 LISTEN_PORT="${AUTH_PROXY_LISTEN_PORT:-8080}"

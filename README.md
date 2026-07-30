@@ -51,7 +51,7 @@ login to perform. Access is therefore split:
   own* save slot.
 
 If you want a fully open, no-password server for a trusted group, set the
-env var `UncivServerAuth=-no-auth`.
+env var `UncivServerAuth=false`.
 
 ## Architecture
 
