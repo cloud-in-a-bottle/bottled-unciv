@@ -1,0 +1,63 @@
+[app]
+name = "unciv"
+version = "0.1.0"
+description = "Unciv (open-source Civ V remake) multiplayer server. Self-host the game-save backend so you and your friends can play online multiplayer from your Unciv desktop/Android clients, instead of relying on the flaky shared public server. Point your client's Server address at this app's URL and play."
+authors = ["Andrew Laack <andrew@laack.co>"]
+
+[runtime.container]
+# auth_proxy listens on 8080 (the OpenHost-routed port) and forwards to
+# UncivServer on loopback 127.0.0.1:8081.
+image = "Dockerfile"
+port = 8080
+
+[routing]
+# The OpenHost readiness probe hits /_healthz, which auth_proxy answers
+# locally with a static 200 the moment it binds — so the container is
+# marked alive immediately, without waiting on (or flapping during) the
+# UncivServer JVM cold start.
+health_check = "/_healthz"
+
+# Why are the game endpoints public?  UncivServer is a headless API that
+# the Unciv *game client* (desktop / Android) talks to.  Those clients
+# cannot perform OpenHost's browser zone_auth SSO flow — a friend joining
+# your game just types the server URL into their Unciv client.  So the
+# game API must be reachable without OpenHost login, exactly like any
+# other self-hosted Unciv server:
+#
+#   /isalive   — the client's connection-check + protocol handshake.
+#   /files/    — game-save upload/download (PUT/GET).  UncivServer's
+#                optional per-user "auth v1" password (enabled by
+#                default) guards writes to each player's own save slot.
+#   /auth      — per-user save-password management.
+#   /chat      — realtime chat / turn-notification WebSocket.
+#
+# NOT public: the app root "/", which auth_proxy serves as an
+# owner-only landing page showing the server URL to paste into the Unciv
+# client.  It stays behind OpenHost SSO so only the zone owner sees the
+# setup instructions; the game API above is what friends actually use.
+public_paths = [
+    "/_healthz",
+    "/isalive",
+    "/files/",
+    "/auth",
+    "/chat",
+]
+
+[resources]
+# UncivServer is a lightweight Ktor/Netty JVM service doing simple file
+# storage — far lighter than a full game.  1 GiB covers the JVM plus the
+# tiny Python proxy comfortably; 1 CPU is plenty for save up/download and
+# the chat WebSocket.
+memory_mb = 1024
+cpu_millicores = 1000
+
+[data]
+# Persistent state under /data/app_data/unciv/:
+#   * MultiplayerFiles/ — one file per multiplayer game save.  This is
+#                         the entire durable state of the server; it must
+#                         survive restarts and redeploys or in-progress
+#                         games are lost.
+app_data = true
+# UncivServer keeps no meaningful scratch state, but grant temp anyway
+# for JVM spill.
+app_temp_data = true
