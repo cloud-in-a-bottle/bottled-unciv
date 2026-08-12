@@ -1,7 +1,7 @@
-# openhost-unciv
+# bottled-unciv
 
 [Unciv](https://github.com/yairm210/Unciv) (open-source Civ V remake)
-multiplayer server, packaged for OpenHost.
+multiplayer server, packaged for Cloud in a Bottle.
 
 ## What this is
 
@@ -16,13 +16,13 @@ Bundled:
 
 - **UncivServer.jar** — the upstream Ktor/Netty game-save API
   (pre-built, downloaded from the pinned Unciv release).
-- **auth_proxy.py** — a small front proxy that serves the OpenHost
+- **auth_proxy.py** — a small front proxy that serves the Cloud in a Bottle
   health probe, an owner-only landing page, and transparently forwards
   the game API to UncivServer.
 
 ## How to use it
 
-1. Open the app's URL in your browser while signed in to your OpenHost
+1. Open the app's URL in your browser while signed in to your Cloud in a Bottle
    zone. You (the owner) get a landing page showing the **server
    address** to use.
 2. In Unciv, go to `Main Menu → Options → Multiplayer`, set **Server
@@ -36,10 +36,10 @@ Bundled:
 ## Auth model
 
 Unciv multiplayer has an unusual shape: the thing that connects to the
-server is a **game client**, not a browser, so there is no OpenHost SSO
+server is a **game client**, not a browser, so there is no Cloud in a Bottle SSO
 login to perform. Access is therefore split:
 
-- **Owner landing page (`/`)** — gated by OpenHost SSO. Only the zone
+- **Owner landing page (`/`)** — gated by Cloud in a Bottle SSO. Only the zone
   owner sees the setup instructions and server URL. Anonymous visitors
   to `/` are bounced to the zone login.
 - **Game API (`/isalive`, `/files/`, `/auth`, `/chat`)** — **public**,
@@ -101,7 +101,7 @@ not demanding.
 
 ## Files
 
-- `openhost.toml` — OpenHost manifest.
+- `openhost.toml` — Cloud in a Bottle manifest.
 - `Dockerfile` — Temurin JRE base; downloads the pinned
   `UncivServer.jar`.
 - `auth_proxy.py` — health + owner landing page + transparent forward.
